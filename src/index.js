@@ -19,9 +19,7 @@ const messagesSchema = joi.object({
     text: joi.string().trim().required(),
     type: joi.string().valid("message", "private_message"),
     
-})
-
-
+});
 
 const mongoClient = new MongoClient(process.env.MONGO_URI);
 let db;
@@ -47,7 +45,7 @@ app.post("/participants", async(req, res) => {
     }
     
     participant["lastStatus"] = Date.now();
-    let hour = dayjs().locale("pt-br").format("HH:mm:ss");
+    const hour = dayjs().locale("pt-br").format("HH:mm:ss");
     
     try{
         await db.collection("participants").insertOne(participant);
@@ -132,23 +130,21 @@ app.post("/status", async(req, res) =>{
     if(!usuarios.find(usuario => usuario.name === user)){
         res.sendStatus(404);
         return;
-    }
-    
+    }    
     try{
         await db.collection("participants").updateOne({name: user}, {$set: {lastStatus: Date.now()}})
         res.sendStatus(200);
     }catch(err){
         console.log(err);
         res.sendStatus(500);
-    }   
-
+    }  
 });
 
 setInterval(async()=>{
     try{
         const users =  await db.collection("participants").find().toArray();
         const arrUsers = users.filter(user => user.lastStatus < (Date.now() - (10 * 1000)));
-        let hour = dayjs().locale("pt-br").format("HH:mm:ss");
+        const hour = dayjs().locale("pt-br").format("HH:mm:ss");
         if(arrUsers.length > 0){
             const outMessages = arrUsers.map(outMessage => {
                 return{
@@ -164,7 +160,7 @@ setInterval(async()=>{
         }
     }catch(err){
         console.log(err);
-        res.sendStatus(500);
+        console.log(500);
     }    
 },15000);
     
