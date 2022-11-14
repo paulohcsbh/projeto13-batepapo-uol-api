@@ -1,9 +1,9 @@
 import express from "express";
 import cors from "cors";
 import { MongoClient, ObjectId} from "mongodb";
-import dotenv from "dotenv"
+import dotenv from "dotenv";
 dotenv.config();
-import joi from "joi"
+import joi from "joi";
 import dayjs from "dayjs";
 
 const app = express();
@@ -30,9 +30,9 @@ await mongoClient.connect().then(()=>{
 
 app.post("/participants", async(req, res) => {
     const participant = req.body;
-    const verify = participantsSchema.validate(participant, {abortEarly: false})
+    const verify = participantsSchema.validate(participant, {abortEarly: false});
     
-    const users = await db.collection("participants").find().toArray()
+    const users = await db.collection("participants").find().toArray();
 
     if(users.find(user => user.name === participant.name)){
         res.status(422).send("Usuário já cadastrado!");
@@ -55,7 +55,7 @@ app.post("/participants", async(req, res) => {
             text: "entra na sala...",
             type: "status",
             time: hour
-        })
+        });
         res.sendStatus(201);
     }catch(err){
         console.log(err);
@@ -75,7 +75,7 @@ app.get("/participants", async (req, res) =>{
 
 app.post("/messages", async(req, res) => {
     const usuario = req.headers.user;
-    const usuarios = await db.collection("participants").find().toArray()
+    const usuarios = await db.collection("participants").find().toArray();
     
     if(!usuarios.find(user => user.name === usuario)){
         res.sendStatus(422);
@@ -90,7 +90,7 @@ app.post("/messages", async(req, res) => {
         return;
     }    
     message["from"] = usuario;
-    let hour = dayjs().locale("pt-br").format("HH:mm:ss");
+    const hour = dayjs().locale("pt-br").format("HH:mm:ss");
     message["time"] = hour;
     
     try{
@@ -112,9 +112,10 @@ app.get("/messages", async (req,res) => {
         const isPublic = (message, type) => message  === type;
         const isForMe = (message, user) => message === user;
         const fromMe = (message, user) => message === user;
-        const myMessages = message => isOnline(message.type, "status") || isPublic(message.type, "message") || isForMe(message.to, user) || fromMe(message.from, user)
+        const myMessages = message => isOnline(message.type, "status") || isPublic(message.type, "message") 
+        || isForMe(message.to, user) || fromMe(message.from, user);
         
-        const filtered = messages.filter(myMessages)
+        const filtered = messages.filter(myMessages);
 
         res.send(!limit ? filtered : filtered.slice(-limit));
         
